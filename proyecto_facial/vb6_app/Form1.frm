@@ -182,23 +182,23 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 ' =====================================
-' VERSI”N SIMPLIFICADA - SIN COMBOS, CATEGORÕAS FIJAS
+' VERSI√ìN SIMPLIFICADA - SIN COMBOS, CATEGOR√çAS FIJAS
 ' =====================================
 Option Explicit
 
 Private currentFacialID As Long
 Private isEditMode As Boolean
 
-' Controles existentes seg˙n la imagen:
-' - txtFiltro (campo de b˙squeda)
-' - cmdBuscar (botÛn Buscar)
+' Controles existentes seg√∫n la imagen:
+' - txtFiltro (campo de b√∫squeda)
+' - cmdBuscar (bot√≥n Buscar)
 ' - grdPersonas (grid con personas)
 ' - CommonDialog1 (para seleccionar archivos)
 ' - imgPreview (para mostrar imagen)
 ' - chkActivo (CheckBox)
 ' - lblFacialID (Label para mostrar ID)
 ' - Botones: cmdGuardar, cmdActualizar, cmdEliminar, cmdCargar
-' - cmdAdjuntar (botÛn Adjuntar Imagen)
+' - cmdAdjuntar (bot√≥n Adjuntar Imagen)
 
 Private Sub Form_Load()
     On Error GoTo ErrHandler
@@ -211,7 +211,7 @@ Private Sub Form_Load()
     
     Exit Sub
 ErrHandler:
-    MsgBox "Error al inicializar la aplicaciÛn: " & Err.Description, vbCritical
+    MsgBox "Error al inicializar la aplicaci√≥n: " & Err.Description, vbCritical
 End Sub
 
 Private Sub InicializarControles()
@@ -277,7 +277,7 @@ Private Sub cmdBuscar_Click()
     
     Exit Sub
 ErrHandler:
-    MsgBox "Error en la b˙squeda: " & Err.Description, vbCritical
+    MsgBox "Error en la b√∫squeda: " & Err.Description, vbCritical
 End Sub
 
 Private Sub grdPersonas_Click()
@@ -294,7 +294,7 @@ Private Sub cmdAdjuntar_Click()
     On Error GoTo ErrHandler
     
     With CommonDialog1
-        .Filter = "Im·genes|*.jpg;*.bmp;*.png"
+        .Filter = "Im√°genes|*.jpg;*.bmp;*.png"
         .ShowOpen
         If .FileName <> "" Then
             imgPreview.Picture = LoadPicture(.FileName)
@@ -332,16 +332,16 @@ Private Sub cmdGuardar_Click()
     
     ' Validar que el archivo de imagen existe
     If Dir(CommonDialog1.FileName) = "" Then
-        MsgBox "El archivo de imagen seleccionado no existe o no es accesible", vbExclamation, "Archivo No V·lido"
+        MsgBox "El archivo de imagen seleccionado no existe o no es accesible", vbExclamation, "Archivo No V√°lido"
         CommonDialog1.FileName = ""
         Set imgPreview.Picture = Nothing
         Exit Sub
     End If
     
     ' Confirmar antes de proceder
-    If MsgBox("øEst· seguro de asignar este rostro a la persona seleccionada?" & vbCrLf & _
+    If MsgBox("¬øEst√° seguro de asignar este rostro a la persona seleccionada?" & vbCrLf & _
               "Persona: " & grdPersonas.TextMatrix(grdPersonas.Row, 1) & " " & grdPersonas.TextMatrix(grdPersonas.Row, 2), _
-              vbQuestion + vbYesNo, "Confirmar AsignaciÛn") = vbNo Then
+              vbQuestion + vbYesNo, "Confirmar Asignaci√≥n") = vbNo Then
         Exit Sub
     End If
     
@@ -356,7 +356,7 @@ Private Sub cmdGuardar_Click()
         
         ' Preguntar si desea actualizar el rostro existente
         If MsgBox("Esta persona ya tiene un rostro asignado (ID: " & existeFacialID & ")" & vbCrLf & _
-                  "øDesea actualizar el rostro existente?", vbQuestion + vbYesNo, "Rostro Existente") = vbYes Then
+                  "¬øDesea actualizar el rostro existente?", vbQuestion + vbYesNo, "Rostro Existente") = vbYes Then
             ' Cargar el rostro existente y llamar actualizar
             currentFacialID = existeFacialID
             isEditMode = True
@@ -379,7 +379,7 @@ Private Sub cmdGuardar_Click()
         Get #1, , imgBytes
     Close #1
     
-    ' Iniciar transacciÛn
+    ' Iniciar transacci√≥n
     cn.BeginTrans
     
     ' 1. Insertar registro en face
@@ -394,14 +394,14 @@ Private Sub cmdGuardar_Click()
     ' 2. Insertar en perface
     cn.Execute "INSERT INTO perface (PersonaID, FacialID) VALUES (" & personaID & ", " & facialID & ")"
     
-    ' 3. Insertar categorÌas fijas en facecatval
-    ' CategorÌa 3, Valor 7 (Tipo de IdentificaciÛn - Facial)
-    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID, ) VALUES (" & facialID & ", 3, 7)"
+    ' 3. Insertar categor√≠as fijas en facecatval
+    ' Categor√≠a 3, Valor 7 (Tipo de Identificaci√≥n - Facial)
+    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & facialID & ", 3, 7)"
     
-    ' CategorÌa 16, Valor 1 (Aplicacion/Destino)
+    ' Categor√≠a 16, Valor 1 (Aplicaci√≥n/Destino)
     cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & facialID & ", 16, 1)"
     
-    ' Confirmar transacciÛn
+    ' Confirmar transacci√≥n
     cn.CommitTrans
     
     ' Actualizar interfaz
@@ -410,7 +410,7 @@ Private Sub cmdGuardar_Click()
     lblFacialID.Caption = " " & facialID
     
     ' Mensaje final
-    MsgBox "°Rostro facial guardado correctamente!" & vbCrLf & _
+    MsgBox "¬°Rostro facial guardado correctamente!" & vbCrLf & _
            "ID: " & facialID & vbCrLf & _
            "Persona: " & grdPersonas.TextMatrix(grdPersonas.Row, 1) & " " & grdPersonas.TextMatrix(grdPersonas.Row, 2) & vbCrLf & _
            "Sistema listo para reconocimiento facial.", vbInformation, "Registro Guardado"
@@ -437,12 +437,12 @@ Private Sub cmdActualizar_Click()
     End If
     
     If Not isEditMode Then
-        MsgBox "No se encuentra en modo de ediciÛn." & vbCrLf & _
-               "Cargue primero un rostro existente para poder modificarlo.", vbExclamation, "Modo EdiciÛn Requerido"
+        MsgBox "No se encuentra en modo de edici√≥n." & vbCrLf & _
+               "Cargue primero un rostro existente para poder modificarlo.", vbExclamation, "Modo Edici√≥n Requerido"
         Exit Sub
     End If
     
-    ' Verificar que el registro facial a˙n existe
+    ' Verificar que el registro facial a√∫n existe
     rs.Open "SELECT FacialID FROM face WHERE FacialID = " & currentFacialID, cn
     If rs.EOF Then
         rs.Close
@@ -461,7 +461,7 @@ Private Sub cmdActualizar_Click()
     If updateImage Then
         ' Validar que el archivo de imagen existe
         If Dir(CommonDialog1.FileName) = "" Then
-            MsgBox "El archivo de imagen seleccionado no existe o no es accesible", vbExclamation, "Archivo No V·lido"
+            MsgBox "El archivo de imagen seleccionado no existe o no es accesible", vbExclamation, "Archivo No V√°lido"
             CommonDialog1.FileName = ""
             Exit Sub
         End If
@@ -469,18 +469,18 @@ Private Sub cmdActualizar_Click()
     
     ' Confirmar antes de proceder
     Dim mensaje As String
-    mensaje = "øEst· seguro de actualizar el registro facial ID: " & currentFacialID & "?" & vbCrLf
+    mensaje = "¬øEst√° seguro de actualizar el registro facial ID: " & currentFacialID & "?" & vbCrLf
     If updateImage Then
-        mensaje = mensaje & "Se actualizar· la imagen y el estado activo."
+        mensaje = mensaje & "Se actualizar√° la imagen y el estado activo."
     Else
-        mensaje = mensaje & "Se actualizar· solo el estado activo (sin cambiar imagen)."
+        mensaje = mensaje & "Se actualizar√° solo el estado activo (sin cambiar imagen)."
     End If
     
-    If MsgBox(mensaje, vbQuestion + vbYesNo, "Confirmar ActualizaciÛn") = vbNo Then
+    If MsgBox(mensaje, vbQuestion + vbYesNo, "Confirmar Actualizaci√≥n") = vbNo Then
         Exit Sub
     End If
     
-    ' Iniciar transacciÛn
+    ' Iniciar transacci√≥n
     cn.BeginTrans
     
     ' Actualizar tabla face
@@ -505,7 +505,7 @@ Private Sub cmdActualizar_Click()
     cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & currentFacialID & ", 3, 7)"
     cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & currentFacialID & ", 16, 1)"
     
-    ' Confirmar transacciÛn
+    ' Confirmar transacci√≥n
     cn.CommitTrans
     
     MsgBox "Registro facial actualizado correctamente.", vbInformation
@@ -530,12 +530,12 @@ Private Sub cmdEliminar_Click()
     End If
     
     If Not isEditMode Then
-        MsgBox "No se encuentra en modo de ediciÛn." & vbCrLf & _
-               "Cargue primero un rostro existente para poder eliminarlo.", vbExclamation, "Modo EdiciÛn Requerido"
+        MsgBox "No se encuentra en modo de edici√≥n." & vbCrLf & _
+               "Cargue primero un rostro existente para poder eliminarlo.", vbExclamation, "Modo Edici√≥n Requerido"
         Exit Sub
     End If
     
-    ' Verificar que el registro facial a˙n existe y obtener datos de la persona
+    ' Verificar que el registro facial a√∫n existe y obtener datos de la persona
     rs.Open "SELECT p.Nombre, p.Apellido FROM face f " & _
             "INNER JOIN perface pf ON f.FacialID = pf.FacialID " & _
             "INNER JOIN per p ON pf.PersonaID = p.PersonaID " & _
@@ -554,25 +554,25 @@ Private Sub cmdEliminar_Click()
     personaNombre = rs!Nombre & " " & rs!Apellido
     rs.Close
     
-    ' ConfirmaciÛn con informaciÛn detallada
-    If MsgBox("øEst· COMPLETAMENTE SEGURO de eliminar el registro facial?" & vbCrLf & vbCrLf & _
+    ' Confirmaci√≥n con informaci√≥n detallada
+    If MsgBox("¬øEst√° COMPLETAMENTE SEGURO de eliminar el registro facial?" & vbCrLf & vbCrLf & _
               "ID Facial: " & currentFacialID & vbCrLf & _
               "Persona: " & personaNombre & vbCrLf & vbCrLf & _
-              "ADVERTENCIA: Esta acciÛn NO se puede deshacer." & vbCrLf & _
-              "Se eliminar·n todos los datos faciales asociados.", _
-              vbCritical + vbYesNo + vbDefaultButton2, "CONFIRMAR ELIMINACI”N") = vbNo Then
+              "ADVERTENCIA: Esta acci√≥n NO se puede deshacer." & vbCrLf & _
+              "Se eliminar√°n todos los datos faciales asociados.", _
+              vbCritical + vbYesNo + vbDefaultButton2, "CONFIRMAR ELIMINACI√ìN") = vbNo Then
         Exit Sub
     End If
     
-    ' Segunda confirmaciÛn para operaciones crÌticas
-    If MsgBox("⁄LTIMA CONFIRMACI”N:" & vbCrLf & _
-              "øRealmente desea proceder con la eliminaciÛn?" & vbCrLf & _
-              "Esta acciÛn es IRREVERSIBLE.", _
-              vbQuestion + vbYesNo + vbDefaultButton2, "Confirmar EliminaciÛn Final") = vbNo Then
+    ' Segunda confirmaci√≥n para operaciones cr√≠ticas
+    If MsgBox("√öLTIMA CONFIRMACI√ìN:" & vbCrLf & _
+              "¬øRealmente desea proceder con la eliminaci√≥n?" & vbCrLf & _
+              "Esta acci√≥n es IRREVERSIBLE.", _
+              vbQuestion + vbYesNo + vbDefaultButton2, "Confirmar Eliminaci√≥n Final") = vbNo Then
         Exit Sub
     End If
     
-    ' Iniciar transacciÛn
+    ' Iniciar transacci√≥n
     cn.BeginTrans
     
     ' Eliminar en orden inverso por integridad referencial
@@ -580,7 +580,7 @@ Private Sub cmdEliminar_Click()
     cn.Execute "DELETE FROM perface WHERE FacialID = " & currentFacialID
     cn.Execute "DELETE FROM face WHERE FacialID = " & currentFacialID
     
-    ' Confirmar transacciÛn
+    ' Confirmar transacci√≥n
     cn.CommitTrans
     
     ' Limpiar interfaz
@@ -623,7 +623,7 @@ Private Sub CargarDatosFaciales(ByVal personaID As Long)
     
     On Error GoTo ErrHandler
 
-    ' Obtener FacialID m·s reciente
+    ' Obtener FacialID m√°s reciente
     rs.Open "SELECT TOP 1 FacialID FROM perface WHERE PersonaID = " & personaID & " ORDER BY FacialID DESC", cn
     If rs.EOF Then
         ' No hay datos faciales - limpiar todo
@@ -654,7 +654,7 @@ Private Sub CargarDatosFaciales(ByVal personaID As Long)
             Close #1
             imgPreview.Picture = LoadPicture(tmpPath)
             Kill tmpPath
-            ' NO limpiar CommonDialog1.FileName aqui porque queremos mantener la imagen cargada
+            ' NO limpiar CommonDialog1.FileName aqu√≠ porque queremos mantener la imagen cargada
         Else
             Set imgPreview.Picture = Nothing
             CommonDialog1.FileName = ""
