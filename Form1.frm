@@ -15,7 +15,7 @@ Begin VB.Form Form1
       Caption         =   "Eliminar"
       Height          =   495
       Left            =   3960
-      TabIndex        =   14
+      TabIndex        =   10
       Top             =   6000
       Width           =   1335
    End
@@ -23,7 +23,7 @@ Begin VB.Form Form1
       Caption         =   "Actualizar"
       Height          =   495
       Left            =   8760
-      TabIndex        =   13
+      TabIndex        =   9
       Top             =   6000
       Width           =   1335
    End
@@ -38,7 +38,7 @@ Begin VB.Form Form1
       Caption         =   "Cargar"
       Height          =   495
       Left            =   7320
-      TabIndex        =   12
+      TabIndex        =   8
       Top             =   6000
       Width           =   1335
    End
@@ -46,30 +46,16 @@ Begin VB.Form Form1
       Caption         =   "Guardar"
       Height          =   495
       Left            =   5880
-      TabIndex        =   11
+      TabIndex        =   7
       Top             =   6000
       Width           =   1335
    End
    Begin VB.CheckBox chkActivo 
       Height          =   375
       Left            =   7080
-      TabIndex        =   6
+      TabIndex        =   4
       Top             =   4800
       Width           =   255
-   End
-   Begin VB.ComboBox cmbValor 
-      Height          =   315
-      Left            =   7080
-      TabIndex        =   5
-      Top             =   4320
-      Width           =   3015
-   End
-   Begin VB.ComboBox cmbCategoria 
-      Height          =   315
-      Left            =   7080
-      TabIndex        =   4
-      Top             =   3840
-      Width           =   3015
    End
    Begin VB.CommandButton cmdAdjuntar 
       Caption         =   "Adjuntar Imagen"
@@ -85,7 +71,7 @@ Begin VB.Form Form1
       Height          =   495
       Left            =   5880
       TabIndex        =   3
-      Top             =   3120
+      Top             =   4080
       Width           =   4215
    End
    Begin MSFlexGridLib.MSFlexGrid grdPersonas 
@@ -144,7 +130,7 @@ Begin VB.Form Form1
       EndProperty
       Height          =   375
       Left            =   5880
-      TabIndex        =   15
+      TabIndex        =   11
       Top             =   5280
       Width           =   975
    End
@@ -160,7 +146,7 @@ Begin VB.Form Form1
       EndProperty
       Height          =   375
       Left            =   7080
-      TabIndex        =   10
+      TabIndex        =   6
       Top             =   5280
       Width           =   3015
    End
@@ -177,51 +163,17 @@ Begin VB.Form Form1
       EndProperty
       Height          =   375
       Left            =   5880
-      TabIndex        =   9
+      TabIndex        =   5
       Top             =   4800
-      Width           =   975
-   End
-   Begin VB.Label Label2 
-      Caption         =   "Valor :"
-      BeginProperty Font 
-         Name            =   "Calibri"
-         Size            =   12
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   255
-      Left            =   5880
-      TabIndex        =   8
-      Top             =   4320
-      Width           =   975
-   End
-   Begin VB.Label Label1 
-      Caption         =   "Categoria :"
-      BeginProperty Font 
-         Name            =   "Calibri"
-         Size            =   12
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   375
-      Left            =   5880
-      TabIndex        =   7
-      Top             =   3840
       Width           =   975
    End
    Begin VB.Image imgPreview 
       BorderStyle     =   1  'Fixed Single
-      Height          =   2655
-      Left            =   6960
+      Height          =   3495
+      Left            =   6600
       Stretch         =   -1  'True
       Top             =   240
-      Width           =   2175
+      Width           =   2895
    End
 End
 Attribute VB_Name = "Form1"
@@ -230,32 +182,29 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 ' =====================================
-' VERSIÓN SIMPLIFICADA - SOLO CONTROLES QUE SABEMOS QUE EXISTEN
+' VERSIÓN SIMPLIFICADA - SIN COMBOS, CATEGORÍAS FIJAS
 ' =====================================
 Option Explicit
 
 Private currentFacialID As Long
 Private isEditMode As Boolean
 
-' Basándome en las imágenes, estos son los controles que veo que existen:
+' Controles existentes según la imagen:
 ' - txtFiltro (campo de búsqueda)
 ' - cmdBuscar (botón Buscar)
 ' - grdPersonas (grid con personas)
 ' - CommonDialog1 (para seleccionar archivos)
 ' - imgPreview (para mostrar imagen)
-' - cmbCategoria y cmbValor (ComboBoxes)
 ' - chkActivo (CheckBox)
 ' - lblFacialID (Label para mostrar ID)
 ' - Botones: cmdGuardar, cmdActualizar, cmdEliminar, cmdCargar
+' - cmdAdjuntar (botón Adjuntar Imagen)
 
 Private Sub Form_Load()
     On Error GoTo ErrHandler
     
     ' Conectar a base de datos
     Call Conectar(App.Path & "\videoman.udl")
-    
-    ' Cargar ComboBox desde catval
-    Call CargarCategorias
     
     ' Inicializar controles
     Call InicializarControles
@@ -285,56 +234,8 @@ Private Sub InicializarControles()
     currentFacialID = 0
     isEditMode = False
     chkActivo.Value = vbChecked
-End Sub
-
-Private Sub CargarCategorias()
-    Dim rs As New ADODB.Recordset
-    On Error GoTo ErrHandler
-    
-    cmbCategoria.Clear
-    rs.Open "SELECT DISTINCT CategoriaID FROM catval WHERE CategoriaID IN (3, 16) ORDER BY CategoriaID", cn
-    
-    Do Until rs.EOF
-        Dim categoriaID As Long
-        categoriaID = rs!categoriaID
-        
-        Select Case categoriaID
-            Case 3:
-                cmbCategoria.AddItem "Tipo de Identificación"
-                cmbCategoria.ItemData(cmbCategoria.NewIndex) = categoriaID
-            Case 16:
-                cmbCategoria.AddItem "Aplicación/Destino"
-                cmbCategoria.ItemData(cmbCategoria.NewIndex) = categoriaID
-        End Select
-        
-        rs.MoveNext
-    Loop
-    
-    rs.Close
-    Set rs = Nothing
-    Exit Sub
-ErrHandler:
-    MsgBox "Error al cargar categorías: " & Err.Description, vbCritical
-End Sub
-
-Private Sub CargarValores(ByVal categoriaID As Long)
-    Dim rs As New ADODB.Recordset
-    On Error GoTo ErrHandler
-    
-    cmbValor.Clear
-    rs.Open "SELECT ValorID, Nombre FROM catval WHERE CategoriaID = " & categoriaID & " ORDER BY ValorID", cn
-    
-    Do Until rs.EOF
-        cmbValor.AddItem rs!Nombre
-        cmbValor.ItemData(cmbValor.NewIndex) = rs!ValorID
-        rs.MoveNext
-    Loop
-    
-    rs.Close
-    Set rs = Nothing
-    Exit Sub
-ErrHandler:
-    MsgBox "Error al cargar valores para la categoría " & categoriaID & ": " & Err.Description, vbCritical
+    Set imgPreview.Picture = Nothing
+    CommonDialog1.FileName = ""  ' Limpiar ruta de imagen
 End Sub
 
 Private Sub cmdBuscar_Click()
@@ -381,11 +282,14 @@ End Sub
 
 Private Sub grdPersonas_Click()
     If grdPersonas.Row > 0 And grdPersonas.Rows > 1 Then
+        ' Limpiar imagen previa al cambiar de persona
+        CommonDialog1.FileName = ""
+        Set imgPreview.Picture = Nothing
+        
         Call CargarDatosFacialesExistentes
     End If
 End Sub
 
-' BOTÓN ADJUNTAR SIMPLIFICADO
 Private Sub cmdAdjuntar_Click()
     On Error GoTo ErrHandler
     
@@ -405,38 +309,63 @@ ErrHandler:
     End If
 End Sub
 
-' =====================================
-' MÉTODO ALTERNATIVO - SIN PARÁMETROS ADODB
-' Si sigues teniendo problemas, usa este método más simple
-' =====================================
-
 Private Sub cmdGuardar_Click()
     Dim rs As New ADODB.Recordset
     Dim facialID As Long
     Dim personaID As Long
     Dim imgBytes() As Byte
     Dim imgPath As String
+    Dim existeFacialID As Long
     
     On Error GoTo ErrHandler
     
-    ' Validaciones
+    ' VALIDACIONES PARA CREAR
     If CommonDialog1.FileName = "" Then
-        MsgBox "Debe adjuntar una imagen", vbInformation
-        Exit Sub
-    End If
-    
-    If cmbCategoria.ListIndex = -1 Or cmbValor.ListIndex = -1 Then
-        MsgBox "Debe seleccionar categoría y valor", vbInformation
+        MsgBox "Debe adjuntar una imagen antes de guardar el rostro", vbExclamation, "Imagen Requerida"
         Exit Sub
     End If
     
     If grdPersonas.Row <= 0 Or grdPersonas.Rows <= 1 Then
-        MsgBox "Debe seleccionar una persona", vbInformation
+        MsgBox "Debe seleccionar una persona de la lista", vbExclamation, "Persona Requerida"
+        Exit Sub
+    End If
+    
+    ' Validar que el archivo de imagen existe
+    If Dir(CommonDialog1.FileName) = "" Then
+        MsgBox "El archivo de imagen seleccionado no existe o no es accesible", vbExclamation, "Archivo No Válido"
+        CommonDialog1.FileName = ""
+        Set imgPreview.Picture = Nothing
+        Exit Sub
+    End If
+    
+    ' Confirmar antes de proceder
+    If MsgBox("¿Está seguro de asignar este rostro a la persona seleccionada?" & vbCrLf & _
+              "Persona: " & grdPersonas.TextMatrix(grdPersonas.Row, 1) & " " & grdPersonas.TextMatrix(grdPersonas.Row, 2), _
+              vbQuestion + vbYesNo, "Confirmar Asignación") = vbNo Then
         Exit Sub
     End If
     
     ' Obtener PersonaID seleccionado
     personaID = CLng(grdPersonas.TextMatrix(grdPersonas.Row, 0))
+    
+    ' VALIDAR SI YA EXISTE UN ROSTRO PARA ESTA PERSONA
+    rs.Open "SELECT FacialID FROM perface WHERE PersonaID = " & personaID, cn
+    If Not rs.EOF Then
+        existeFacialID = rs!facialID
+        rs.Close
+        
+        ' Preguntar si desea actualizar el rostro existente
+        If MsgBox("Esta persona ya tiene un rostro asignado (ID: " & existeFacialID & ")" & vbCrLf & _
+                  "¿Desea actualizar el rostro existente?", vbQuestion + vbYesNo, "Rostro Existente") = vbYes Then
+            ' Cargar el rostro existente y llamar actualizar
+            currentFacialID = existeFacialID
+            isEditMode = True
+            lblFacialID.Caption = " " & existeFacialID
+            Call cmdActualizar_Click
+        End If
+        Exit Sub
+    End If
+    rs.Close
     
     ' Obtener nuevo FacialID
     rs.Open "SELECT ISNULL(MAX(FacialID), 0) + 1 AS NuevoID FROM dbo.face", cn
@@ -450,10 +379,10 @@ Private Sub cmdGuardar_Click()
         Get #1, , imgBytes
     Close #1
     
-    ' MÉTODO ALTERNATIVO: Usar Recordset en lugar de Command
+    ' Iniciar transacción
     cn.BeginTrans
     
-    ' 1. Insertar registro en face usando Recordset
+    ' 1. Insertar registro en face
     rs.Open "SELECT * FROM face WHERE 1=0", cn, adOpenDynamic, adLockOptimistic
     rs.AddNew
     rs!facialID = facialID
@@ -462,11 +391,15 @@ Private Sub cmdGuardar_Click()
     rs.Update
     rs.Close
     
-    ' 2. Insertar en perface usando SQL directo
+    ' 2. Insertar en perface
     cn.Execute "INSERT INTO perface (PersonaID, FacialID) VALUES (" & personaID & ", " & facialID & ")"
     
-    ' 3. Insertar en facecatval usando SQL directo
-    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & facialID & ", " & cmbCategoria.ItemData(cmbCategoria.ListIndex) & ", " & cmbValor.ItemData(cmbValor.ListIndex) & ")"
+    ' 3. Insertar categorías fijas en facecatval
+    ' Categoría 3, Valor 7 (Tipo de Identificación - Facial)
+    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & facialID & ", 3, 7)"
+    
+    ' Categoría 16, Valor 1 (Aplicación/Destino)
+    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & facialID & ", 16, 1)"
     
     ' Confirmar transacción
     cn.CommitTrans
@@ -476,19 +409,11 @@ Private Sub cmdGuardar_Click()
     isEditMode = True
     lblFacialID.Caption = " " & facialID
     
-    ' Mensaje personalizado
-    Dim mensajeFinal As String
-    If cmbCategoria.ItemData(cmbCategoria.ListIndex) = 3 And cmbValor.Text = "Facial" Then
-        mensajeFinal = "¡Imagen facial guardada correctamente!" & vbCrLf & _
-                      "ID: " & facialID & vbCrLf & _
-                      "Tipo: Identificación Facial" & vbCrLf & _
-                      "Sistema listo para reconocimiento facial."
-    Else
-        mensajeFinal = "Imagen guardada correctamente con ID: " & facialID & vbCrLf & _
-                      "Tipo: " & cmbValor.Text
-    End If
-    
-    MsgBox mensajeFinal, vbInformation, "Registro Guardado"
+    ' Mensaje final
+    MsgBox "¡Rostro facial guardado correctamente!" & vbCrLf & _
+           "ID: " & facialID & vbCrLf & _
+           "Persona: " & grdPersonas.TextMatrix(grdPersonas.Row, 1) & " " & grdPersonas.TextMatrix(grdPersonas.Row, 2) & vbCrLf & _
+           "Sistema listo para reconocimiento facial.", vbInformation, "Registro Guardado"
     
     Exit Sub
 ErrHandler:
@@ -496,9 +421,6 @@ ErrHandler:
     MsgBox "Error al guardar: " & Err.Description, vbCritical
 End Sub
 
-' =====================================
-' MÉTODO ALTERNATIVO PARA ACTUALIZAR
-' =====================================
 Private Sub cmdActualizar_Click()
     Dim rs As New ADODB.Recordset
     Dim imgBytes() As Byte
@@ -507,23 +429,61 @@ Private Sub cmdActualizar_Click()
     
     On Error GoTo ErrHandler
     
+    ' VALIDACIONES PARA MODIFICAR
     If currentFacialID = 0 Then
-        MsgBox "No hay un registro facial seleccionado para actualizar", vbInformation
+        MsgBox "No hay un registro facial seleccionado para actualizar." & vbCrLf & _
+               "Primero debe cargar los datos de una persona con rostro asignado.", vbExclamation, "Sin Registro Seleccionado"
         Exit Sub
     End If
     
-    If cmbCategoria.ListIndex = -1 Or cmbValor.ListIndex = -1 Then
-        MsgBox "Debe seleccionar categoría y valor", vbInformation
+    If Not isEditMode Then
+        MsgBox "No se encuentra en modo de edición." & vbCrLf & _
+               "Cargue primero un rostro existente para poder modificarlo.", vbExclamation, "Modo Edición Requerido"
         Exit Sub
     End If
+    
+    ' Verificar que el registro facial aún existe
+    rs.Open "SELECT FacialID FROM face WHERE FacialID = " & currentFacialID, cn
+    If rs.EOF Then
+        rs.Close
+        MsgBox "El registro facial ID " & currentFacialID & " ya no existe en la base de datos." & vbCrLf & _
+               "Puede haber sido eliminado por otro usuario.", vbExclamation, "Registro No Encontrado"
+        currentFacialID = 0
+        isEditMode = False
+        lblFacialID.Caption = " "
+        Exit Sub
+    End If
+    rs.Close
     
     ' Verificar si se debe actualizar la imagen
     updateImage = (CommonDialog1.FileName <> "")
     
+    If updateImage Then
+        ' Validar que el archivo de imagen existe
+        If Dir(CommonDialog1.FileName) = "" Then
+            MsgBox "El archivo de imagen seleccionado no existe o no es accesible", vbExclamation, "Archivo No Válido"
+            CommonDialog1.FileName = ""
+            Exit Sub
+        End If
+    End If
+    
+    ' Confirmar antes de proceder
+    Dim mensaje As String
+    mensaje = "¿Está seguro de actualizar el registro facial ID: " & currentFacialID & "?" & vbCrLf
+    If updateImage Then
+        mensaje = mensaje & "Se actualizará la imagen y el estado activo."
+    Else
+        mensaje = mensaje & "Se actualizará solo el estado activo (sin cambiar imagen)."
+    End If
+    
+    If MsgBox(mensaje, vbQuestion + vbYesNo, "Confirmar Actualización") = vbNo Then
+        Exit Sub
+    End If
+    
     ' Iniciar transacción
     cn.BeginTrans
     
-    ' Actualizar tabla face usando Recordset
+    ' Actualizar tabla face
     rs.Open "SELECT * FROM face WHERE FacialID = " & currentFacialID, cn, adOpenDynamic, adLockOptimistic
     If Not rs.EOF Then
         If updateImage Then
@@ -540,9 +500,10 @@ Private Sub cmdActualizar_Click()
     End If
     rs.Close
     
-    ' Actualizar facecatval
+    ' Actualizar facecatval con valores fijos
     cn.Execute "DELETE FROM facecatval WHERE FacialID = " & currentFacialID
-    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & currentFacialID & ", " & cmbCategoria.ItemData(cmbCategoria.ListIndex) & ", " & cmbValor.ItemData(cmbValor.ListIndex) & ")"
+    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & currentFacialID & ", 3, 7)"
+    cn.Execute "INSERT INTO facecatval (FacialID, CategoriaID, ValorID) VALUES (" & currentFacialID & ", 16, 1)"
     
     ' Confirmar transacción
     cn.CommitTrans
@@ -553,6 +514,96 @@ Private Sub cmdActualizar_Click()
 ErrHandler:
     cn.RollbackTrans
     MsgBox "Error al actualizar: " & Err.Description, vbCritical
+End Sub
+
+Private Sub cmdEliminar_Click()
+    Dim rs As New ADODB.Recordset
+    Dim personaNombre As String
+    
+    On Error GoTo ErrHandler
+    
+    ' VALIDACIONES PARA ELIMINAR
+    If currentFacialID = 0 Then
+        MsgBox "No hay un registro facial seleccionado para eliminar." & vbCrLf & _
+               "Primero debe cargar los datos de una persona con rostro asignado.", vbExclamation, "Sin Registro Seleccionado"
+        Exit Sub
+    End If
+    
+    If Not isEditMode Then
+        MsgBox "No se encuentra en modo de edición." & vbCrLf & _
+               "Cargue primero un rostro existente para poder eliminarlo.", vbExclamation, "Modo Edición Requerido"
+        Exit Sub
+    End If
+    
+    ' Verificar que el registro facial aún existe y obtener datos de la persona
+    rs.Open "SELECT p.Nombre, p.Apellido FROM face f " & _
+            "INNER JOIN perface pf ON f.FacialID = pf.FacialID " & _
+            "INNER JOIN per p ON pf.PersonaID = p.PersonaID " & _
+            "WHERE f.FacialID = " & currentFacialID, cn
+    
+    If rs.EOF Then
+        rs.Close
+        MsgBox "El registro facial ID " & currentFacialID & " ya no existe en la base de datos." & vbCrLf & _
+               "Puede haber sido eliminado por otro usuario.", vbExclamation, "Registro No Encontrado"
+        currentFacialID = 0
+        isEditMode = False
+        lblFacialID.Caption = " "
+        Exit Sub
+    End If
+    
+    personaNombre = rs!Nombre & " " & rs!Apellido
+    rs.Close
+    
+    ' Confirmación con información detallada
+    If MsgBox("¿Está COMPLETAMENTE SEGURO de eliminar el registro facial?" & vbCrLf & vbCrLf & _
+              "ID Facial: " & currentFacialID & vbCrLf & _
+              "Persona: " & personaNombre & vbCrLf & vbCrLf & _
+              "ADVERTENCIA: Esta acción NO se puede deshacer." & vbCrLf & _
+              "Se eliminarán todos los datos faciales asociados.", _
+              vbCritical + vbYesNo + vbDefaultButton2, "CONFIRMAR ELIMINACIÓN") = vbNo Then
+        Exit Sub
+    End If
+    
+    ' Segunda confirmación para operaciones críticas
+    If MsgBox("ÚLTIMA CONFIRMACIÓN:" & vbCrLf & _
+              "¿Realmente desea proceder con la eliminación?" & vbCrLf & _
+              "Esta acción es IRREVERSIBLE.", _
+              vbQuestion + vbYesNo + vbDefaultButton2, "Confirmar Eliminación Final") = vbNo Then
+        Exit Sub
+    End If
+    
+    ' Iniciar transacción
+    cn.BeginTrans
+    
+    ' Eliminar en orden inverso por integridad referencial
+    cn.Execute "DELETE FROM facecatval WHERE FacialID = " & currentFacialID
+    cn.Execute "DELETE FROM perface WHERE FacialID = " & currentFacialID
+    cn.Execute "DELETE FROM face WHERE FacialID = " & currentFacialID
+    
+    ' Confirmar transacción
+    cn.CommitTrans
+    
+    ' Limpiar interfaz
+    currentFacialID = 0
+    isEditMode = False
+    lblFacialID.Caption = " "
+    Set imgPreview.Picture = Nothing
+    chkActivo.Value = vbChecked
+    
+    MsgBox "Registro facial eliminado correctamente.", vbInformation
+    
+    Exit Sub
+ErrHandler:
+    cn.RollbackTrans
+    MsgBox "Error al eliminar: " & Err.Description, vbCritical
+End Sub
+
+Private Sub cmdCargar_Click()
+    If grdPersonas.Row > 0 And grdPersonas.Rows > 1 Then
+        Call CargarDatosFacialesExistentes
+    Else
+        MsgBox "Debe seleccionar una persona para cargar sus datos faciales", vbInformation
+    End If
 End Sub
 
 Private Sub CargarDatosFacialesExistentes()
@@ -575,10 +626,13 @@ Private Sub CargarDatosFaciales(ByVal personaID As Long)
     ' Obtener FacialID más reciente
     rs.Open "SELECT TOP 1 FacialID FROM perface WHERE PersonaID = " & personaID & " ORDER BY FacialID DESC", cn
     If rs.EOF Then
-        ' No hay datos faciales
+        ' No hay datos faciales - limpiar todo
         Set imgPreview.Picture = Nothing
         lblFacialID.Caption = " Sin datos"
         currentFacialID = 0
+        isEditMode = False
+        CommonDialog1.FileName = ""  ' Limpiar ruta de imagen
+        chkActivo.Value = vbChecked  ' Reset a valor por defecto
         rs.Close
         Exit Sub
     End If
@@ -586,9 +640,10 @@ Private Sub CargarDatosFaciales(ByVal personaID As Long)
     rs.Close
     
     currentFacialID = facialID
+    isEditMode = True
     lblFacialID.Caption = " " & facialID
     
-    ' Cargar imagen
+    ' Cargar imagen y estado
     rs.Open "SELECT TemplateData, Activo FROM face WHERE FacialID = " & facialID, cn
     If Not rs.EOF Then
         If Not IsNull(rs!TemplateData) Then
@@ -599,46 +654,24 @@ Private Sub CargarDatosFaciales(ByVal personaID As Long)
             Close #1
             imgPreview.Picture = LoadPicture(tmpPath)
             Kill tmpPath
+            ' NO limpiar CommonDialog1.FileName aquí porque queremos mantener la imagen cargada
+        Else
+            Set imgPreview.Picture = Nothing
+            CommonDialog1.FileName = ""
         End If
         chkActivo.Value = IIf(rs!Activo = 1, vbChecked, vbUnchecked)
-    End If
-    rs.Close
-
-    ' Cargar categoría/valor
-    rs.Open "SELECT CategoriaID, ValorID FROM facecatval WHERE FacialID = " & facialID, cn
-    If Not rs.EOF Then
-        ' Buscar y seleccionar categoría
-        Dim i As Integer
-        For i = 0 To cmbCategoria.ListCount - 1
-            If cmbCategoria.ItemData(i) = rs!categoriaID Then
-                cmbCategoria.ListIndex = i
-                Call CargarValores(rs!categoriaID)
-                Exit For
-            End If
-        Next
-        
-        ' Buscar y seleccionar valor
-        For i = 0 To cmbValor.ListCount - 1
-            If cmbValor.ItemData(i) = rs!ValorID Then
-                cmbValor.ListIndex = i
-                Exit For
-            End If
-        Next
     End If
     rs.Close
     
     Exit Sub
 ErrHandler:
     MsgBox "Error al cargar datos faciales: " & Err.Description, vbCritical
+    currentFacialID = 0
+    isEditMode = False
+    CommonDialog1.FileName = ""
 End Sub
 
 ' EVENTOS
-Private Sub cmbCategoria_Click()
-    If cmbCategoria.ListIndex >= 0 Then
-        Call CargarValores(cmbCategoria.ItemData(cmbCategoria.ListIndex))
-    End If
-End Sub
-
 Private Sub txtFiltro_KeyPress(KeyAscii As Integer)
     If KeyAscii = 13 Then ' Enter
         Call cmdBuscar_Click
@@ -648,3 +681,4 @@ End Sub
 Private Sub Form_Unload(Cancel As Integer)
     Call Desconectar
 End Sub
+
